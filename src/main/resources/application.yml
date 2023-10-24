@@ -1,0 +1,6 @@
+spring:
+  rabbitmq:
+    host: b-689aaac5-589a-4b7c-a6b8-362f87ba0eb0.mq.us-east-1.amazonaws.com
+    password: RabbitMqUade
+    port: 5671
+    username: uade-broker

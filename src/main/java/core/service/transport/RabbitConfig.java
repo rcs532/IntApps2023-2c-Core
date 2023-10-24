@@ -140,7 +140,7 @@ public class RabbitConfig {
   }
 
   @Bean
-  public Binding maketingBinding(Queue marketplaceQueue, DirectExchange directExchange){
+  public Binding maketplaceBinding(Queue marketplaceQueue, DirectExchange directExchange){
     return BindingBuilder.bind(marketplaceQueue).to(directExchange).with(MARKETPLACE);
   }
 

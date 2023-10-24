@@ -31,7 +31,7 @@ public class Client {
     if (!session.isConnected())
       return;
 
-    //Thread.sleep(2000);
+    Thread.sleep(2000);
     String message = "";
 
     String options[] = new String[]{
@@ -40,8 +40,9 @@ public class Client {
             "analitica",
             "admin-personal",
             "marketplace",
+            "core-contable",
             "core-bancario",
-            "core-contable"
+
     };
 
     Boolean selected[] = new Boolean[]{
@@ -71,7 +72,7 @@ public class Client {
       try {
         int option = Integer.parseInt(message);
 
-        if (option >= 1 && option <= 4) {
+        if (option >= 1 && option <= 7) {
           selected[option - 1] = true;
           session.subscribe(WebSocketConstants.PREFIX_TOPIC + "/" + options[option - 1], stopmSessionHandler);
         }

@@ -28,57 +28,66 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
   private static final Logger logger = LogManager.getLogger(WebSocketConfig.class);
 
   @Autowired
-  private BeanFactory beanFactory;
+  private BeanFactory beanFactory; // BeanFactory is used to create new instances of RabbitConsumer
 
-  HashMap<String, ArrayList<String>> clientSubscriptions;
-  HashMap<String, ConsumerPair> consumers;
+  HashMap<String, ArrayList<String>> clientSubscriptions; // Key: SessionId, Value: List of Subscriptions
+  HashMap<String, ConsumerPair> consumers; // Key: Destination, Value: ConsumerPair
 
   @Override
-  public void configureMessageBroker(MessageBrokerRegistry config) {
-
-    config.enableSimpleBroker(WebSocketConstants.PREFIX_TOPIC);
-    config.setApplicationDestinationPrefixes(WebSocketConstants.PREFIX_APP);
+  public void configureMessageBroker(MessageBrokerRegistry config) { // Message Broker Configuration
+    config.enableSimpleBroker(WebSocketConstants.PREFIX_TOPIC); // Topic Prefix
+    config.setApplicationDestinationPrefixes(WebSocketConstants.PREFIX_APP); // App Prefix
   }
 
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
-    for (var itr : WebSocketConstants.ENDPOINTS.keySet()){
+    // Register Endpoints
+    for (var itr : WebSocketConstants.ENDPOINTS.keySet()){ // Iterate over endpoints in WebSocketConstants
       registry.addEndpoint("/" + itr).withSockJS();
       registry.addEndpoint("/" + itr);
     }
 
-    clientSubscriptions = new HashMap<>();
-    consumers = new HashMap<>();
+    clientSubscriptions = new HashMap<>(); // Initialize HashMaps
+    consumers = new HashMap<>(); // Initialize HashMaps
   }
 
   @Override
   public void configureClientInboundChannel(ChannelRegistration registration) {
+    // Configure Client Inbound Channel
     registration.interceptors(new ChannelInterceptor() {
+      // Add Interceptor to see handle when a client subscribes or unsubscribes
       @Override
       public
       void postSend(Message<?> message, MessageChannel channel, boolean sent) {
+        // Post Send Method sent to /app/send/queue
         logger.info("POST SEND: " + message.toString());
 
-        Object stompHeader = message.getHeaders().get("stompCommand");
+        Object stompHeader = message.getHeaders().get("stompCommand"); // Get Stomp Command
         String sessionId = (String) message.getHeaders().get("simpSessionId");
 
         if (sessionId == null || stompHeader == null)
           return;
 
         StompCommand command = (StompCommand) stompHeader;
-        switch(command){
-          case SUBSCRIBE:{
+        switch(command){ // Switch on Stomp Command
+          case SUBSCRIBE:{ // If Subscribe
             String destination = (String) message.getHeaders().get("simpDestination");
             logger.info("DESTINATION: " + destination);
             registerSubscribe(destination);
+            // Add to clientSubscriptions
             clientSubscriptions.get(sessionId).add(destination);
             break;
           }
           case UNSUBSCRIBE:{
+            // Disconnect consumer from rabbit
+
+
+
 
             break;
           }
-          case DISCONNECT:{
+          case DISCONNECT:{ // If Disconnect
+            // Remove from clientSubscriptions
             ArrayList<String> subscriptions = clientSubscriptions.get(sessionId);
 
             if (subscriptions == null)
@@ -93,7 +102,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 
             break;
           }
-          case CONNECT:{
+          case CONNECT:{ // If Connect
+            // Add to clientSubscriptions
             if (!clientSubscriptions.containsKey(sessionId)){
               clientSubscriptions.put(sessionId, new ArrayList<String>());
             }
@@ -110,12 +120,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 
   @Scheduled(fixedDelay = 600 * 1000)
   public void checkConnections(){
+    // Check Connections every 10 minutes and log the number of connections
     for (var itr : consumers.keySet()){
       ConsumerPair info = consumers.get(itr);
       logger.info("Listen counter for Channel: " + itr + "--" + info.getCounter());
     }
   }
 
+  //registerSubscribe is a method that registers a new consumer for a destination
   public void registerSubscribe(String destination){
     if (!consumers.containsKey(destination)){
       String queueName = WebSocketConstants.QueueNameMaps.get(destination);
@@ -133,6 +145,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
     }
   }
 
+  //unRegisterSubscribe is a method that unregisters a consumer for a destination
   public void unRegisterSubscribe(String destination){
     if (!consumers.containsKey(destination)){
       return;
@@ -147,7 +160,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
       }
     }
   }
-
+//ConsumerPair is a class that contains a RabbitConsumer and a counter
   private class ConsumerPair{
 
     private RabbitConsumer consumer;

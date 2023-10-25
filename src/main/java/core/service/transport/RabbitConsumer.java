@@ -9,7 +9,7 @@ import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-
+import com.rabbitmq.client.Channel;
 import core.service.transport.server.IncommingMessage;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -27,6 +27,7 @@ public class RabbitConsumer {
 
   SimpleMessageListenerContainer listenerContainer;
 
+
   public RabbitConsumer(String queueString, String deString){
     System.out.println("Params: " + queueString + "----" + deString);
     queue = queueString;
@@ -41,6 +42,8 @@ public class RabbitConsumer {
       listenerContainer = null;
     }
   }
+
+
 
   @PostConstruct
   public void initListener(){

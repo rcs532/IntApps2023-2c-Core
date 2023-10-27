@@ -1,6 +1,6 @@
-FROM eclipse-temurin:17-jdk-alpine
-RUN addgroup -S app && adduser -S app -G app
-USER app
+FROM openjdk:17-oracle
 VOLUME /tmp
-COPY production/transport.jar app.jar
-CMD exec java -jar app.jar
+EXPOSE 8080
+ARG JAR_FILE=target/transport-0.0.1-SNAPSHOT.jar
+ADD ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]

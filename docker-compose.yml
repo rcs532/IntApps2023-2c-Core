@@ -1,0 +1,10 @@
+version: "3.7"
+services:
+  intApps:
+    container_name: intapps-container
+    image: intapps-image
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"

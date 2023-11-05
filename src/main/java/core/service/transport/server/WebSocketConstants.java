@@ -11,7 +11,7 @@ public class WebSocketConstants {
           "robots", "ws://localhost:8080/robots",
           "core-bancario", "ws://localhost:8080/core-bancario",
           "core-contable", "ws://localhost:8080/core-contable",
-          "marketing", "ws://localhost:8080/marketplace",
+          "marketplace", "ws://localhost:8080/marketplace",
           "usuarios", "ws://localhost:8080/usuarios",
           "admin-personal","ws://localhost:8080/admin-personal"
   );
